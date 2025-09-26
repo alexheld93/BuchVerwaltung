@@ -1,0 +1,40 @@
+﻿@model BuchVerwaltung.Models.Book
+
+<div id="editFormContainer">
+    <form id="editForm">
+        <input type="hidden" name="Id" value="@Model.Id.ToString()" />
+
+        <div id="editValidationSummary" class="text-danger mb-3 d-none"></div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="control-label"></label>
+            <input asp-for="Title" class="form-control" name="Title" value="@Model.Title" />
+            <div class="text-danger" id="error-Title"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Author" class="control-label"></label>
+            <input asp-for="Author" class="form-control" name="Author" value="@Model.Author" />
+            <div class="text-danger" id="error-Author"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Isbn" class="control-label"></label>
+            <input asp-for="Isbn" class="form-control" name="Isbn" value="@Model.Isbn" />
+            <div class="text-danger" id="error-Isbn"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Year" class="control-label"></label>
+            <input asp-for="Year" class="form-control" name="Year" type="number" value="@Model.Year" />
+            <div class="text-danger" id="error-Year"></div>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" onclick="submitEditForm(@Model.Id)">
+                Speichern
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        </div>
+    </form>
+</div>

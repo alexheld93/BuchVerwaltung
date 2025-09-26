@@ -1,0 +1,36 @@
+﻿@model BuchVerwaltung.Models.Book
+
+<div id="createFormContainer">
+    <form id="createForm">
+        <div id="createValidationSummary" class="text-danger mb-3 d-none"></div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="control-label"></label>
+            <input asp-for="Title" class="form-control" name="Title" />
+            <div class="text-danger" id="error-Title"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Author" class="control-label"></label>
+            <input asp-for="Author" class="form-control" name="Author" />
+            <div class="text-danger" id="error-Author"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Isbn" class="control-label"></label>
+            <input asp-for="Isbn" class="form-control" name="Isbn" />
+            <div class="text-danger" id="error-Isbn"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Year" class="control-label"></label>
+            <input asp-for="Year" class="form-control" name="Year" type="number" />
+            <div class="text-danger" id="error-Year"></div>
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" onclick="submitCreateForm()">Erstellen</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        </div>
+    </form>
+</div>

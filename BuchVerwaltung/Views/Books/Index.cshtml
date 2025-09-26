@@ -1,0 +1,199 @@
+﻿@model IEnumerable<BuchVerwaltung.Models.Book>
+
+@{
+    ViewData["Title"] = "Bücherliste";
+}
+
+<h1>Bücher</h1>
+
+<p>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBookModal">
+        Neues Buch hinzufügen
+    </button>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>@Html.DisplayNameFor(model => model.Isbn)</th>
+            <th>@Html.DisplayNameFor(model => model.Year)</th>
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Author)</td>
+                <td>@Html.DisplayFor(modelItem => item.Isbn)</td>
+                <td>@Html.DisplayFor(modelItem => item.Year)</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="loadEditForm(@item.Id)">
+                        Bearbeiten
+                    </button>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
+                    <a href="javascript:void(0)" onclick="confirmDelete(@item.Id)" class="btn btn-sm btn-outline-danger">Löschen</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modell für neues Buch -->
+<div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="createBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createBookModalLabel">Neues Buch hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body">
+                @await Html.PartialAsync("_CreateForm", new BuchVerwaltung.Models.Book())
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modell für das Bearbeiten -->
+<div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Buch bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <div class="modal-body" id="editModalBody">
+                <!-- Wird per JavaScript befüllt -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            if (confirm("Möchtest du dieses Buch wirklich löschen?")) {
+                window.location.href = '/Books/DeleteConfirmed/' + id;
+            }
+        }
+
+        function submitCreateForm() {
+            const formData = {
+                Title: document.querySelector('[name="Title"]').value,
+                Author: document.querySelector('[name="Author"]').value,
+                Isbn: document.querySelector('[name="Isbn"]').value,
+                Year: parseInt(document.querySelector('[name="Year"]').value) || 0
+            };
+
+            // Fehlercontainer leeren
+            document.querySelectorAll('.text-danger[id^="error-"]').forEach(el => el.textContent = '');
+            const summary = document.getElementById('createValidationSummary');
+            if (summary) summary.textContent = '';
+
+            fetch('/Books/CreateAjax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('createBookModal')).hide();
+                    location.reload();
+                } else {
+                    return response.json().then(data => {
+                        if (data.summary && summary) {
+                            summary.textContent = data.summary;
+                        }
+                        if (data.fields) {
+                            for (let field in data.fields) {
+                                const el = document.getElementById('error-' + field);
+                                if (el) {
+                                    el.textContent = data.fields[field];
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Fehler:', err);
+                alert('Ein technischer Fehler ist aufgetreten.');
+            });
+        }
+
+        function loadEditForm(id) {
+            fetch('/Books/EditPartial/' + id)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('editModalBody').innerHTML = html;
+                    const modal = new bootstrap.Modal(document.getElementById('editBookModal'));
+                    modal.show();
+                })
+                .catch(err => {
+                    alert('Fehler beim Laden des Formulars.');
+                });
+        }
+
+        function submitEditForm(id) {
+            const modal = document.getElementById('editBookModal');
+
+            const title = modal.querySelector('[name="Title"]').value;
+            const author = modal.querySelector('[name="Author"]').value;
+            const isbn = modal.querySelector('[name="Isbn"]').value;
+            const year = parseInt(modal.querySelector('[name="Year"]').value) || 0;
+
+            const formData = {
+                Id: id,
+                Title: title,
+                Author: author,
+                Isbn: isbn,
+                Year: year
+            };
+
+            // Fehler leeren + Summary verstecken
+            modal.querySelectorAll('.text-danger[id^="error-"]').forEach(el => el.textContent = '');
+            const summaryDiv = document.getElementById('editValidationSummary');
+            if (summaryDiv) {
+                summaryDiv.textContent = '';
+                summaryDiv.classList.add('d-none');
+            }
+
+            fetch('/Books/EditAjax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(modal).hide();
+                    location.reload();
+                } else {
+                    return response.json().then(data => {
+                        if (data.summary && summaryDiv) {
+                            summaryDiv.textContent = data.summary;
+                            summaryDiv.classList.remove('d-none'); // Zeige den Balken
+                        }
+                        if (data.fields) {
+                            for (let field in data.fields) {
+                                const errorDiv = modal.querySelector(`#error-${field}`);
+                                if (errorDiv) {
+                                    errorDiv.textContent = data.fields[field];
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Fehler:', err);
+                alert('Ein technischer Fehler ist aufgetreten.');
+            });
+        }
+    </script>
+}
