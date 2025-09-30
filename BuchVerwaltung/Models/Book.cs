@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+// Grundmodell / Grundgerüst für ein Buch
+
 namespace BuchVerwaltung.Models
 {
     public class Book
