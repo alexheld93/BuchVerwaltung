@@ -1,8 +1,62 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Startseite";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero-Bereich -->
+<div class="bg-light p-5 rounded text-center mb-4">
+    <h1 class="display-4 fw-bold text-primary">📚 BuchVerwaltung</h1>
+    <p class="lead">Ein modernes Büchermanagement-System für Sammler und Bücherfreunde.</p>
+    <hr class="my-4">
+    <p>Verwalte das Bücherregal digital mit vollständiger CRUD-Funktionalität, Live-Suche und Echtzeit-Validierung.</p>
+    <a class="btn btn-primary btn-lg" asp-controller="Books" asp-action="Index" role="button">
+        <i class="bi bi-book"></i> Zu deiner Bücherliste
+    </a>
+</div>
+
+<!-- Info-Karten -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">
+                    <span class="badge bg-success rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 2.5rem; height: 2.5rem;">
+                        <i class="bi bi-plus text-white fs-5"></i>
+                    </span>
+                    Hinzufügen
+                </h3>
+                <p class="card-text">Füge neue Bücher mit ISBN, Autor und Erscheinungsjahr hinzu – alles in einem Pop-up.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">
+                    <span class="badge bg-warning rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 2.5rem; height: 2.5rem;">
+                        <i class="bi bi-pencil text-dark fs-5"></i>
+                    </span>
+                    Bearbeiten
+                </h3>
+                <p class="card-text">Korrigiere Titel, Autor oder andere Angaben – ohne Seitenwechsel.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <h3 class="card-title">
+                    <span class="badge bg-danger rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 2.5rem; height: 2.5rem;">
+                        <i class="bi bi-trash text-white fs-5"></i>
+                    </span>
+                    Löschen
+                </h3>
+                <p class="card-text">Entferne Bücher mit Bestätigung – sicher und einfach.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional: Footer-Hinweis -->
+<div class="mt-5 text-center text-muted">
+    <p>Erstellt als Praktikumsprojekt mit ASP.NET Core MVC, Entity Framework Core und Bootstrap 5.</p>
 </div>

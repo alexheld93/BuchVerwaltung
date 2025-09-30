@@ -38,3 +38,15 @@ body {
     border-radius: 0.375rem;
     margin-bottom: 1rem;
 }
+
+/* Eigenes orangenes Outline-Button für Bearbeiten */
+.btn-outline-orange {
+    color: #fd7e14 !important; /* Orangene Schrift (Bootstrap-Orange) */
+    border-color: #fd7e14 !important; /* Orangener Rand */
+}
+
+    .btn-outline-orange:hover {
+        background-color: #fd7e14 !important; /* Hintergrund wird orange beim Hover */
+        color: white !important; /* Schrift wird weiß */
+        border-color: #fd7e14 !important;
+    }

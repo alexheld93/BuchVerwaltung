@@ -1,4 +1,10 @@
-﻿@model IEnumerable<BuchVerwaltung.Models.Book>
+﻿@* 
+    BuchVerwaltung – Bücherliste (Index)
+    Zeigt alle Bücher mit Paginierung (20 pro Seite), Live-Suche, CRUD über Pop-ups.
+*@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model IPagedList<BuchVerwaltung.Models.Book>
 
 @{
     ViewData["Title"] = "Bücherliste";
@@ -6,19 +12,49 @@
 
 <h1>Bücher</h1>
 
-<p>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBookModal">
-        Neues Buch hinzufügen
-    </button>
-</p>
+<!-- Suchfeld: halbe Breite auf mittleren+ Bildschirmen -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control" 
+               placeholder="Live-Suche nach Titel oder Autor..." />
+    </div>
+</div>
 
-<table class="table table-striped">
+<!--  Flex-Container für Button + obere Paginierung - Einfache und präzise Ausrichtung-->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <!-- Button: "Neues Buch hinzufügen" – links -->
+    <div>
+        <button type="button" class="btn btn-success" 
+                data-bs-toggle="modal" data-bs-target="#createBookModal">
+            Neues Buch hinzufügen
+        </button>
+    </div>
+    
+    <!-- Obere Paginierung: mittig mit flex-grow -->
+    <div class="flex-grow-1 d-flex justify-content-center mx-3">
+        @Html.PagedListPager((IPagedList)Model, 
+            page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }),
+            new PagedListRenderOptions {
+                LiElementClasses = new string[] { "page-item" },
+                PageClasses = new string[] { "page-link" },
+                ContainerDivClasses = new[] { "pagination", "mb-0" }
+            })
+    </div>
+    
+    <!-- Unsichtbarer Platzhalter für symmetrisches Layout -->
+    <div class="invisible">
+        <button type="button" class="btn btn-success">Neues Buch hinzufügen</button>
+    </div>
+</div>
+
+<!-- Tabelle mit Büchern -->
+<table id="booksTable" class="table table-striped">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Author)</th>
-            <th>@Html.DisplayNameFor(model => model.Isbn)</th>
-            <th>@Html.DisplayNameFor(model => model.Year)</th>
+            <th>Titel</th>
+            <th>Autor</th>
+            <th>ISBN</th>
+            <th>Jahr</th>
             <th>Aktionen</th>
         </tr>
     </thead>
@@ -31,25 +67,39 @@
                 <td>@Html.DisplayFor(modelItem => item.Isbn)</td>
                 <td>@Html.DisplayFor(modelItem => item.Year)</td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                            onclick="loadEditForm(@item.Id)">
-                        Bearbeiten
-                    </button>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Details</a>
-                    <a href="javascript:void(0)" onclick="confirmDelete(@item.Id)" class="btn btn-sm btn-outline-danger">Löschen</a>
+                    <button type="button" class="btn btn-sm btn-outline-orange" 
+                            onclick="loadEditForm(@item.Id)">Bearbeiten</button>
+                    <button type="button" class="btn btn-sm btn-outline-info" 
+                            onclick="loadDetails(@item.Id)">Details</button>
+                    <a href="javascript:void(0)" 
+                       onclick="confirmDelete(@item.Id)" 
+                       class="btn btn-sm btn-outline-danger">Löschen</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-<!-- Modell für neues Buch -->
-<div class="modal fade" id="createBookModal" tabindex="-1" aria-labelledby="createBookModalLabel" aria-hidden="true">
+<!-- Untere Paginierung: perfekt zentriert -->
+<div class="d-flex justify-content-center align-items-center mt-4">
+    @Html.PagedListPager((IPagedList)Model, 
+        page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }),
+        new PagedListRenderOptions {
+            LiElementClasses = new string[] { "page-item" },
+            PageClasses = new string[] { "page-link" },
+            ContainerDivClasses = new[] { "pagination", "mb-0" }
+        })
+</div>
+
+<!-- Modale: werden per JavaScript befüllt -->
+<div class="modal fade" id="createBookModal" tabindex="-1" 
+     aria-labelledby="createBookModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="createBookModalLabel">Neues Buch hinzufügen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                        aria-label="Schließen"></button>
             </div>
             <div class="modal-body">
                 @await Html.PartialAsync("_CreateForm", new BuchVerwaltung.Models.Book())
@@ -58,13 +108,13 @@
     </div>
 </div>
 
-<!-- Modell für das Bearbeiten -->
 <div class="modal fade" id="editBookModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Buch bearbeiten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                        aria-label="Schließen"></button>
             </div>
             <div class="modal-body" id="editModalBody">
                 <!-- Wird per JavaScript befüllt -->
@@ -73,14 +123,24 @@
     </div>
 </div>
 
+<div class="modal fade" id="detailsBookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="detailsModalContent">
+            <!-- Wird per JavaScript befüllt -->
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // Löschbestätigung
         function confirmDelete(id) {
             if (confirm("Möchtest du dieses Buch wirklich löschen?")) {
                 window.location.href = '/Books/DeleteConfirmed/' + id;
             }
         }
 
+        // Erstellen (AJAX)
         function submitCreateForm() {
             const formData = {
                 Title: document.querySelector('[name="Title"]').value,
@@ -89,16 +149,17 @@
                 Year: parseInt(document.querySelector('[name="Year"]').value) || 0
             };
 
-            // Fehlercontainer leeren
+            // Fehlermeldungen leeren
             document.querySelectorAll('.text-danger[id^="error-"]').forEach(el => el.textContent = '');
-            const summary = document.getElementById('createValidationSummary');
-            if (summary) summary.textContent = '';
+            const summaryDiv = document.getElementById('createValidationSummary');
+            if (summaryDiv) {
+                summaryDiv.textContent = '';
+                summaryDiv.classList.add('d-none');
+            }
 
             fetch('/Books/CreateAjax', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             })
             .then(response => {
@@ -107,15 +168,14 @@
                     location.reload();
                 } else {
                     return response.json().then(data => {
-                        if (data.summary && summary) {
-                            summary.textContent = data.summary;
+                        if (data.summary && summaryDiv) {
+                            summaryDiv.textContent = data.summary;
+                            summaryDiv.classList.remove('d-none');
                         }
                         if (data.fields) {
                             for (let field in data.fields) {
                                 const el = document.getElementById('error-' + field);
-                                if (el) {
-                                    el.textContent = data.fields[field];
-                                }
+                                if (el) el.textContent = data.fields[field];
                             }
                         }
                     });
@@ -127,6 +187,7 @@
             });
         }
 
+        // Bearbeiten: Formular laden
         function loadEditForm(id) {
             fetch('/Books/EditPartial/' + id)
                 .then(response => response.text())
@@ -140,9 +201,9 @@
                 });
         }
 
+        // Bearbeiten: Speichern (AJAX)
         function submitEditForm(id) {
             const modal = document.getElementById('editBookModal');
-
             const title = modal.querySelector('[name="Title"]').value;
             const author = modal.querySelector('[name="Author"]').value;
             const isbn = modal.querySelector('[name="Isbn"]').value;
@@ -156,7 +217,6 @@
                 Year: year
             };
 
-            // Fehler leeren + Summary verstecken
             modal.querySelectorAll('.text-danger[id^="error-"]').forEach(el => el.textContent = '');
             const summaryDiv = document.getElementById('editValidationSummary');
             if (summaryDiv) {
@@ -177,14 +237,12 @@
                     return response.json().then(data => {
                         if (data.summary && summaryDiv) {
                             summaryDiv.textContent = data.summary;
-                            summaryDiv.classList.remove('d-none'); // Zeige den Balken
+                            summaryDiv.classList.remove('d-none');
                         }
                         if (data.fields) {
                             for (let field in data.fields) {
                                 const errorDiv = modal.querySelector(`#error-${field}`);
-                                if (errorDiv) {
-                                    errorDiv.textContent = data.fields[field];
-                                }
+                                if (errorDiv) errorDiv.textContent = data.fields[field];
                             }
                         }
                     });
@@ -194,6 +252,115 @@
                 console.error('Fehler:', err);
                 alert('Ein technischer Fehler ist aufgetreten.');
             });
+        }
+
+        // Live-Suche mit Debouncing (500ms Pause nach Tippen)
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.trim();
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        performSearch(searchTerm);
+                    }, 500);
+                });
+            }
+            attachPaginationEvents();
+        });
+
+        // Suche per AJAX (serverseitig, inkl. Paginierung)
+        function performSearch(searchTerm) {
+            const tableBody = document.querySelector('#booksTable tbody');
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Suche läuft...</td></tr>';
+            }
+
+            const url = `/Books?searchString=${encodeURIComponent(searchTerm)}&page=1`;
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.ok ? response.text() : Promise.reject('Fehler'))
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.getElementById('booksTable');
+                    const newPagination = doc.querySelector('.pagination');
+
+                    if (newTable) document.getElementById('booksTable').outerHTML = newTable.outerHTML;
+                    
+                    // Update beide Paginierung Container
+                    const topPaginationContainer = document.querySelector('.flex-grow-1.d-flex.justify-content-center');
+                    const bottomPaginationContainer = document.querySelector('.d-flex.justify-content-center.align-items-center.mt-4');
+                    
+                    if (topPaginationContainer && newPagination) {
+                        topPaginationContainer.innerHTML = newPagination.outerHTML;
+                    }
+                    if (bottomPaginationContainer && newPagination) {
+                        bottomPaginationContainer.innerHTML = newPagination.outerHTML;
+                    }
+                    
+                    attachPaginationEvents();
+                })
+                .catch(() => {
+                    if (tableBody) tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Fehler bei der Suche</td></tr>';
+                });
+        }
+
+        // AJAX-Paginierung (für obere + untere Navigation)
+        function attachPaginationEvents() {
+            document.removeEventListener('click', handlePaginationClick);
+            document.addEventListener('click', handlePaginationClick);
+        }
+
+        function handlePaginationClick(e) {
+            if (e.target.matches('.page-link')) {
+                e.preventDefault();
+                loadPageViaAjax(e.target.getAttribute('href'));
+            }
+        }
+
+        function loadPageViaAjax(url) {
+            const tableBody = document.querySelector('#booksTable tbody');
+            if (tableBody) tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Lade...</td></tr>';
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.ok ? response.text() : Promise.reject())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.getElementById('booksTable');
+                    const newPagination = doc.querySelector('.pagination');
+
+                    if (newTable) document.getElementById('booksTable').outerHTML = newTable.outerHTML;
+                    
+                    // Update both pagination containers
+                    const topPaginationContainer = document.querySelector('.flex-grow-1.d-flex.justify-content-center');
+                    const bottomPaginationContainer = document.querySelector('.d-flex.justify-content-center.align-items-center.mt-4');
+                    
+                    if (topPaginationContainer && newPagination) {
+                        topPaginationContainer.innerHTML = newPagination.outerHTML;
+                    }
+                    if (bottomPaginationContainer && newPagination) {
+                        bottomPaginationContainer.innerHTML = newPagination.outerHTML;
+                    }
+                    
+                    attachPaginationEvents();
+                })
+                .catch(() => {
+                    if (tableBody) tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Fehler beim Laden</td></tr>';
+                });
+        }
+
+        // Details-Pop-up
+        function loadDetails(id) {
+            fetch('/Books/DetailsPartial/' + id)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('detailsModalContent').innerHTML = html;
+                    new bootstrap.Modal(document.getElementById('detailsBookModal')).show();
+                })
+                .catch(() => alert('Fehler beim Laden der Details.'));
         }
     </script>
 }

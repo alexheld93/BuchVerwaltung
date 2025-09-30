@@ -12,5 +12,12 @@ namespace BuchVerwaltung.Data
         }
 
         public DbSet<Book> Books { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Book>()
+                .HasIndex(b => b.Isbn)
+                .IsUnique(); // ← Das macht ISBN eindeutig
+        }
     }
 }

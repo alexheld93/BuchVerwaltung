@@ -1,0 +1,24 @@
+﻿@model BuchVerwaltung.Models.Book
+
+<div class="modal-header">
+    <h5 class="modal-title">Buchdetails: @Model.Title</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+</div>
+<div class="modal-body">
+    <dl class="row">
+        <dt class="col-sm-4">Titel</dt>
+        <dd class="col-sm-8">@Model.Title</dd>
+
+        <dt class="col-sm-4">Autor</dt>
+        <dd class="col-sm-8">@Model.Author</dd>
+
+        <dt class="col-sm-4">ISBN</dt>
+        <dd class="col-sm-8">@Model.Isbn</dd>
+
+        <dt class="col-sm-4">Erscheinungsjahr</dt>
+        <dd class="col-sm-8">@Model.Year</dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+</div>
