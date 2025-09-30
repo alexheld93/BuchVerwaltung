@@ -12,7 +12,7 @@
 
 <h1>Bücher</h1>
 
-<!-- 🔍 Suchfeld: halbe Breite auf mittleren+ Bildschirmen -->
+<!-- Suchfeld: halbe Breite auf mittleren+ Bildschirmen -->
 <div class="row mb-3">
     <div class="col-md-6">
         <input type="text" id="searchInput" class="form-control" 
@@ -20,12 +20,9 @@
     </div>
 </div>
 
-<!-- 
-    🔁 Flex-Container für Button + obere Paginierung
-    - Paginierung jetzt rechts
--->
+<!-- Flex-Container für Button + obere Paginierung - Paginierung jetzt rechts -->
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <!-- 📥 Button: "Neues Buch hinzufügen" – links -->
+    <!-- Button: "Neues Buch hinzufügen" – links -->
     <div>
         <button type="button" class="btn btn-success" 
                 data-bs-toggle="modal" data-bs-target="#createBookModal">
@@ -33,7 +30,7 @@
         </button>
     </div>
     
-    <!-- 📖 Obere Paginierung: RECHTS -->
+    <!-- Obere Paginierung: RECHTS -->
     <div>
         @Html.PagedListPager((IPagedList)Model, 
             page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }),
@@ -45,7 +42,7 @@
     </div>
 </div>
 
-<!-- 📋 Tabelle mit Büchern -->
+<!-- Tabelle mit Büchern -->
 <table id="booksTable" class="table table-striped">
     <thead>
         <tr>
@@ -78,7 +75,7 @@
     </tbody>
 </table>
 
-<!-- 📖 Untere Paginierung: jetzt auch RECHTS -->
+<!-- Untere Paginierung: jetzt auch RECHTS -->
 <div class="d-flex justify-content-end align-items-center mt-4">
     @Html.PagedListPager((IPagedList)Model, 
         page => Url.Action("Index", new { page, searchString = ViewData["CurrentFilter"] }),
@@ -89,7 +86,7 @@
         })
 </div>
 
-<!-- 🪟 Modale: werden per JavaScript befüllt -->
+<!-- Modale: werden per JavaScript befüllt -->
 <div class="modal fade" id="createBookModal" tabindex="-1" 
      aria-labelledby="createBookModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -131,14 +128,14 @@
 
 @section Scripts {
     <script>
-        // 🔒 Löschbestätigung
+        // Löschbestätigung
         function confirmDelete(id) {
             if (confirm("Möchtest du dieses Buch wirklich löschen?")) {
                 window.location.href = '/Books/DeleteConfirmed/' + id;
             }
         }
 
-        // ➕ Erstellen (AJAX)
+        // Erstellen (AJAX)
         function submitCreateForm() {
             const formData = {
                 Title: document.querySelector('[name="Title"]').value,
@@ -185,7 +182,7 @@
             });
         }
 
-        // ✏️ Bearbeiten: Formular laden
+        // Bearbeiten: Formular laden
         function loadEditForm(id) {
             fetch('/Books/EditPartial/' + id)
                 .then(response => response.text())
@@ -199,7 +196,7 @@
                 });
         }
 
-        // ✏️ Bearbeiten: Speichern (AJAX)
+        // Bearbeiten: Speichern (AJAX)
         function submitEditForm(id) {
             const modal = document.getElementById('editBookModal');
             const title = modal.querySelector('[name="Title"]').value;
@@ -252,7 +249,7 @@
             });
         }
 
-        // 🔍 Live-Suche mit Debouncing (500ms Pause nach Tippen)
+        // Live-Suche mit Debouncing (500ms Pause nach Tippen)
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             let searchTimeout;
@@ -269,7 +266,7 @@
             attachPaginationEvents();
         });
 
-        // 🔍 Suche per AJAX (serverseitig, inkl. Paginierung)
+        // Suche per AJAX (serverseitig, inkl. Paginierung)
         function performSearch(searchTerm) {
             const tableBody = document.querySelector('#booksTable tbody');
             if (tableBody) {
@@ -305,7 +302,7 @@
                 });
         }
 
-        // 📄 AJAX-Paginierung (für obere + untere Navigation)
+        // AJAX-Paginierung (für obere + untere Navigation)
         function attachPaginationEvents() {
             document.removeEventListener('click', handlePaginationClick);
             document.addEventListener('click', handlePaginationClick);
@@ -350,7 +347,7 @@
                 });
         }
 
-        // ℹ️ Details-Pop-up
+        // Details-Pop-up
         function loadDetails(id) {
             fetch('/Books/DetailsPartial/' + id)
                 .then(response => response.text())
